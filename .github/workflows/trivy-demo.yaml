@@ -1,10 +1,9 @@
 name: Basic_Trivy_Image_Scan
 
 on:
-  pull_request: 
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
   
 jobs:
   scan:
