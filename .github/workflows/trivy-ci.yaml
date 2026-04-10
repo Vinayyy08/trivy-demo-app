@@ -1,0 +1,46 @@
+name: full-pipeline-demo
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      image: myapp:${{ github.sha }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker build -t myapp:${{ github.sha }} .
+
+  scan:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Scan Image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: myapp:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: 1
+
+  push:
+    runs-on: ubuntu-latest
+    needs: scan
+
+    steps:
+      - name: Push Image
+        run: echo "Push to Docker Hub or ECR"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: push
+
+    steps:
+      - name: Deploy
+        run: echo "Deploy to Kubernetes"
